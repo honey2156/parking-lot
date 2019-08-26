@@ -15,7 +15,6 @@ public class ParkingServiceImpl implements ParkingService {
 	@Override
 	public void createParkingLot(int size) throws ParkingException {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override

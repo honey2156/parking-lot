@@ -13,7 +13,8 @@ public enum ExceptionMessages {
 	INVALID_VALUE("{variable} value is incorrect"),
 	INVALID_FILE("Invalid File"),
 	PROCESSING_ERROR("Processing Error "),
-	INVALID_REQUEST("Invalid Request");
+	INVALID_REQUEST("Invalid Request"),
+	INVALID_COMMAND("Invalid Command");
 
 	private String message;
 
