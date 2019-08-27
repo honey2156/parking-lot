@@ -73,7 +73,7 @@ public class RequestExecutor {
 	}
 
 	public void execute(String input) throws ParkingException {
-		System.out.println("executing " + input);
+//		System.out.println("executing " + input);
 		String commandArgs[] = input.split(" ");
 
 		switch (commandArgs[0]) {

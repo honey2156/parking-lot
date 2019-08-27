@@ -36,7 +36,7 @@ public class InputUtils {
 	}
 
 	public static boolean validateInput(String input) throws ParkingException {
-		System.out.println("validating " + input);
+//		System.out.println("validating " + input);
 		boolean valid = true;
 
 //		String commandArgs[] = input.split(" ");

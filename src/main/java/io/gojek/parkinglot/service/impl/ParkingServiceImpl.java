@@ -29,16 +29,17 @@ public class ParkingServiceImpl implements ParkingService {
 		} else {
 			this.parkingDao = ParkingDaoImpl.getInstance(size);
 		}
+		System.out.println("Created a parking lot with " + size + " slots");
 	}
 
 	@Override
 	public void park(Vehicle vehicle) throws ParkingException {
 		int slotNumber = this.parkingDao.park(vehicle);
 		if (slotNumber == ExceptionCodes.NOT_AVAILABLE) {
-			System.out.println(ExceptionMessages.PARKING_LOT_FULL);
-			throw new ParkingException(ExceptionMessages.PARKING_LOT_FULL.getMessage());
+			System.out.println(ExceptionMessages.PARKING_LOT_FULL.getMessage());
+//			throw new ParkingException(ExceptionMessages.PARKING_LOT_FULL.getMessage());
 		} else if (slotNumber == ExceptionCodes.VEHICLE_ALREADY_EXIST) {
-			System.out.println(ExceptionMessages.VEHICLE_ALREADY_EXIST);
+			System.out.println(ExceptionMessages.VEHICLE_ALREADY_EXIST.getMessage());
 		} else {
 			System.out.println("Allocated slot number: " + slotNumber);
 		}
@@ -50,27 +51,27 @@ public class ParkingServiceImpl implements ParkingService {
 		if (unparked) {
 			System.out.println("Slot number " + slotNumber + " is free");
 		} else {
-			System.out.println(ExceptionMessages.PARKING_NOT_EXIST_ERROR);
-			throw new ParkingException(ExceptionMessages.PARKING_NOT_EXIST_ERROR.getMessage());
+			System.out.println(ExceptionMessages.PARKING_NOT_EXIST_ERROR.getMessage());
+//			throw new ParkingException(ExceptionMessages.PARKING_NOT_EXIST_ERROR.getMessage());
 		}
 	}
 
 	@Override
 	public void getStatus() throws ParkingException {
 		Map<Slot, Vehicle> lot = this.parkingDao.getStatus();
-		System.out.println("Slot No. " + "Registration No" + " Colour");
+		System.out.println("Slot No." + "\t" + "Registration No" + "\t\t" + "Colour");
 		for (Entry<Slot, Vehicle> entry : lot.entrySet()) {
-			System.out.println(entry.getKey().getSlotNumber() + " " + entry.getValue().getRegistrationNumber() + " "
-					+ entry.getValue().getColour());
+			System.out.println(entry.getKey().getSlotNumber() + "\t\t" + entry.getValue().getRegistrationNumber()
+					+ "\t\t" + entry.getValue().getColour());
 		}
 	}
 
 	@Override
 	public List<String> getRegistrationNumbersOfColour(String colour) throws ParkingException {
-		List<String> regNumbers = this.getRegistrationNumbersOfColour(colour);
+		List<String> regNumbers = this.parkingDao.getRegistrationNumbersOfColour(colour);
 		if (regNumbers == null) {
 			System.out.println(ExceptionMessages.NOT_FOUND.getMessage());
-			throw new ParkingException(ExceptionMessages.NOT_FOUND.getMessage());
+//			throw new ParkingException(ExceptionMessages.NOT_FOUND.getMessage());
 		} else {
 			System.out.println(String.join(",", regNumbers));
 		}
@@ -82,13 +83,14 @@ public class ParkingServiceImpl implements ParkingService {
 		List<Integer> slotNumbers = this.parkingDao.getSlotNumbersOfColour(colour);
 		if (slotNumbers == null) {
 			System.out.println(ExceptionMessages.NOT_FOUND.getMessage());
-			throw new ParkingException(ExceptionMessages.NOT_FOUND.getMessage());
+//			throw new ParkingException(ExceptionMessages.NOT_FOUND.getMessage());
+		} else {
+			StringJoiner joiner = new StringJoiner(",");
+			for (Integer slotNumber : slotNumbers) {
+				joiner.add(slotNumber + "");
+			}
+			System.out.println(joiner.toString());
 		}
-		StringJoiner joiner = new StringJoiner(",");
-		for (Integer slotNumber : slotNumbers) {
-			joiner.add(slotNumber + "");
-		}
-		System.out.println(joiner.toString());
 		return slotNumbers;
 	}
 
@@ -97,7 +99,9 @@ public class ParkingServiceImpl implements ParkingService {
 		int slotNumber = this.parkingDao.getSlotNumberFromRegistrationNumber(registrationNumber);
 		if (slotNumber == ExceptionCodes.NOT_FOUND) {
 			System.out.println(ExceptionMessages.NOT_FOUND.getMessage());
-			throw new ParkingException(ExceptionMessages.NOT_FOUND.getMessage());
+//			throw new ParkingException(ExceptionMessages.NOT_FOUND.getMessage());
+		} else {
+			System.out.println(slotNumber);
 		}
 		return slotNumber;
 	}

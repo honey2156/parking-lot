@@ -174,11 +174,19 @@ public class ParkingDaoImpl implements ParkingDao {
 
 			// update slotNumbersByColour with unparked vehicle details
 			List<Integer> slotNumbers = this.slotNumbersByColour.get(vehicle.getColour());
-			slotNumbers.remove(slotNumber);
+			slotNumbers.remove(new Integer(slotNumber));
 			this.slotNumbersByColour.put(vehicle.getColour(), slotNumbers);
 
 			// update slotNumberByRegistrationNumber with unparked vehicle details
 			this.slotNumberByRegistrationNumber.remove(vehicle.getRegistrationNumber());
+
+			// update parkingLotMap
+			this.parkingLotMap.remove(slot);
+
+			// update empty slots by currently freed slot
+			this.emptySlots.add(slotNumber);
+			// update order of slots
+			Collections.sort(this.emptySlots);
 
 			return true;
 		} else {
