@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.gojek.parkinglot.constants.ExceptionCodes;
 import io.gojek.parkinglot.constants.ExceptionMessages;
 import io.gojek.parkinglot.exception.ParkingException;
 import io.gojek.parkinglot.model.Slot;
@@ -17,20 +18,47 @@ import io.gojek.parkinglot.model.Vehicle;
  */
 public class ParkingDaoImpl implements ParkingDao {
 
+	/**
+	 * Persists Parking lot size
+	 */
 	private int parkingLotSize;
 
+	/**
+	 * Persists Parking lot Slot-Vehicle Mapping
+	 */
 	private Map<Slot, Vehicle> parkingLotMap;
 
+	/**
+	 * Persists mapping of registration numbers of vehicles by colour of vehicles
+	 */
 	private Map<String, List<String>> registrationNumbersByColour;
 
-	private Map<String, List<Slot>> slotNumbersByColour;
+	/**
+	 * Persists mapping of slot numbers of parking lot by colour of vehicles
+	 */
+	private Map<String, List<Integer>> slotNumbersByColour;
 
+	/**
+	 * Perists mapping of slot numbers of parking lot by registration number of
+	 * vehicles
+	 */
 	private Map<String, Integer> slotNumberByRegistrationNumber;
 
+	/**
+	 * Maintains record of empty slots for parking in sorted order for allocating
+	 * nearest slot from entry point
+	 */
 	private List<Integer> emptySlots;
 
+	/**
+	 * For implementing Singleton instance of Parking DAO (Assuming there will be
+	 * only one parking lot)
+	 */
 	private static ParkingDaoImpl instance = null;
 
+	/**
+	 * @param parkingLotSize
+	 */
 	private ParkingDaoImpl(int parkingLotSize) {
 		super();
 		this.parkingLotSize = parkingLotSize;
@@ -44,8 +72,16 @@ public class ParkingDaoImpl implements ParkingDao {
 		}
 	}
 
+	/**
+	 * @param parkingLotSize
+	 * @param parkingLotMap
+	 * @param registrationNumbersByColour
+	 * @param slotNumbersByColour
+	 * @param slotNumberByRegistrationNumber
+	 * @param emptySlots
+	 */
 	private ParkingDaoImpl(int parkingLotSize, Map<Slot, Vehicle> parkingLotMap,
-			Map<String, List<String>> registrationNumbersByColour, Map<String, List<Slot>> slotNumbersByColour,
+			Map<String, List<String>> registrationNumbersByColour, Map<String, List<Integer>> slotNumbersByColour,
 			Map<String, Integer> slotNumberByRegistrationNumber, List<Integer> emptySlots) {
 		super();
 		this.parkingLotSize = parkingLotSize;
@@ -56,17 +92,32 @@ public class ParkingDaoImpl implements ParkingDao {
 		this.emptySlots = emptySlots;
 	}
 
-	private static ParkingDao getInstance(int size) {
+	/**
+	 * For providing external access to Parking DAO
+	 * 
+	 * @param size
+	 * @return
+	 */
+	public static ParkingDao getInstance(int size) {
 		if (instance == null) {
 			instance = new ParkingDaoImpl(size);
 		}
 		return instance;
 	}
 
+	/**
+	 * Park vehicle by allocating it slot nearest to entry point
+	 * 
+	 * @param vehicle
+	 * @return
+	 */
 	@Override
-	public boolean park(Vehicle vehicle) throws ParkingException {
-		if (emptySlots.size() == 0) {
-			throw new ParkingException(ExceptionMessages.PARKING_LOT_FULL.getMessage());
+	public int park(Vehicle vehicle) throws ParkingException {
+		validateParkingLot();
+		// Check slot availability
+		if (this.getAvailableSlotsCount() == 0) {
+			// return -1 if slot not available
+			return ExceptionCodes.NOT_AVAILABLE;
 		}
 		Collections.sort(this.emptySlots);
 		// Get nearest Parking Slot
@@ -85,13 +136,13 @@ public class ParkingDaoImpl implements ParkingDao {
 		this.registrationNumbersByColour.put(vehicle.getColour(), registerationNumbers);
 
 		// update slotNumbersByColour with vehicle details
-		List<Slot> slotNumbers;
+		List<Integer> slotNumbers;
 		if (this.slotNumbersByColour.containsKey(vehicle.getColour())) {
 			slotNumbers = this.slotNumbersByColour.get(vehicle.getColour());
 		} else {
-			slotNumbers = new ArrayList<Slot>();
+			slotNumbers = new ArrayList<>();
 		}
-		slotNumbers.add(new Slot(nearestSlot));
+		slotNumbers.add(nearestSlot);
 		this.slotNumbersByColour.put(vehicle.getColour(), slotNumbers);
 
 		// update slotNumberByRegistrationNumber
@@ -99,14 +150,19 @@ public class ParkingDaoImpl implements ParkingDao {
 
 		// remove empty slot
 		this.emptySlots.remove(0);
-
-		return false;
+		// return allocated slot
+		return nearestSlot;
 	}
 
+	/**
+	 * Unpark vehicle from slot with given slot number
+	 * 
+	 * @param slotNumber
+	 */
 	@Override
-	public void unPark(int slotNumber) throws ParkingException {
+	public boolean unPark(int slotNumber) throws ParkingException {
+		validateParkingLot();
 		Slot slot = new Slot(slotNumber);
-
 		if (this.parkingLotMap.containsKey(slot) && this.parkingLotMap.get(slot) != null) {
 			// unPark vehicle from slot
 			Vehicle vehicle = this.parkingLotMap.get(slot);
@@ -117,51 +173,101 @@ public class ParkingDaoImpl implements ParkingDao {
 			this.registrationNumbersByColour.put(vehicle.getColour(), registerationNumbers);
 
 			// update slotNumbersByColour with unparked vehicle details
-			List<Slot> slotNumbers = this.slotNumbersByColour.get(vehicle.getColour());
-			slotNumbers.remove(slot);
+			List<Integer> slotNumbers = this.slotNumbersByColour.get(vehicle.getColour());
+			slotNumbers.remove(slotNumber);
 			this.slotNumbersByColour.put(vehicle.getColour(), slotNumbers);
 
 			// update slotNumberByRegistrationNumber with unparked vehicle details
 			this.slotNumberByRegistrationNumber.remove(vehicle.getRegistrationNumber());
 
+			return true;
 		} else {
-			throw new ParkingException(ExceptionMessages.PARKING_NOT_EXIST_ERROR.getMessage());
+			return false;
 		}
 	}
 
+	/**
+	 * Get status of parking lot. Provides layout of parking lot with vehicles
+	 * parked in their respective slots
+	 */
 	@Override
 	public Map<Slot, Vehicle> getStatus() throws ParkingException {
+		validateParkingLot();
 		return this.parkingLotMap;
 	}
 
+	/**
+	 * Returns registration numbers of vehicles by colour of vehicles
+	 *
+	 * @param colour
+	 */
 	@Override
 	public List<String> getRegistrationNumbersOfColour(String colour) throws ParkingException {
-		// TODO Auto-generated method stub
-		return null;
+		validateParkingLot();
+		List<String> registrationNumbers = null;
+		if (this.registrationNumbersByColour.containsKey(colour)) {
+			registrationNumbers = this.registrationNumbersByColour.get(colour);
+		}
+		return registrationNumbers;
 	}
 
+	/**
+	 * Returns slot numbers of parking lot allocated with vehicles by colour of
+	 * vehicles
+	 *
+	 * @param colour
+	 */
 	@Override
 	public List<Integer> getSlotNumbersOfColour(String colour) throws ParkingException {
-		// TODO Auto-generated method stub
-		return null;
+		validateParkingLot();
+		List<Integer> slotNumbers = null;
+		if (this.slotNumbersByColour.containsKey(colour)) {
+			slotNumbers = this.slotNumbersByColour.get(colour);
+		}
+		return slotNumbers;
 	}
 
+	/**
+	 * Returns slot numbers of parking lot by registration number of vehicles
+	 * 
+	 * @param registrationNumber
+	 */
 	@Override
 	public int getSlotNumberFromRegistrationNumber(String registrationNumber) throws ParkingException {
-		// TODO Auto-generated method stub
-		return 0;
+		validateParkingLot();
+		int slotNumber = ExceptionCodes.NOT_FOUND;
+		if (this.slotNumberByRegistrationNumber.containsKey(registrationNumber)) {
+			slotNumber = this.slotNumberByRegistrationNumber.get(registrationNumber);
+		}
+		return slotNumber;
 	}
 
+	/**
+	 * Returns available slots for parking
+	 * 
+	 * @throws ParkingException
+	 */
 	@Override
-	public Integer getAvailableSlotsCount() throws ParkingException {
-		// TODO Auto-generated method stub
-		return null;
+	public int getAvailableSlotsCount() throws ParkingException {
+		validateParkingLot();
+		return this.emptySlots.size();
+	}
+
+	/**
+	 * Validate parking lot exists or not
+	 * 
+	 * @throws ParkingException
+	 */
+	private void validateParkingLot() throws ParkingException {
+		if (instance == null) {
+			throw new ParkingException(ExceptionMessages.PARKING_LOT_DOES_NOT_EXIST.getMessage());
+		}
 	}
 
 	@Override
 	protected Object clone() throws CloneNotSupportedException {
 		// TODO Auto-generated method stub
-		return super.clone();
+		throw new CloneNotSupportedException();
 	}
 
 	@Override

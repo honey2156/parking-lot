@@ -7,6 +7,7 @@ package io.gojek.parkinglot.constants;
 public enum ExceptionMessages {
 
 	PARKING_LOT_FULL("Sorry, parking lot is full"),
+	PARKING_LOT_DOES_NOT_EXIST("Sorry, parking lot Does not exist"),
 	NOT_FOUND("Not found"),
 	PARKING_ALREADY_EXIST("Sorry Parking Already Created, It CAN NOT be again recreated."),
 	PARKING_NOT_EXIST_ERROR("Sorry, Car Parking Does not Exist"),
@@ -14,7 +15,8 @@ public enum ExceptionMessages {
 	INVALID_FILE("Invalid File"),
 	PROCESSING_ERROR("Processing Error "),
 	INVALID_REQUEST("Invalid Request"),
-	INVALID_COMMAND("Invalid Command");
+	INVALID_COMMAND("Invalid Command"),
+	VEHICLE_ALREADY_EXIST("Sorry, vehicle is already parked.");
 
 	private String message;
 
