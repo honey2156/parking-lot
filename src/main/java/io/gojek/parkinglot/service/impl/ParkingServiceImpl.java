@@ -15,12 +15,13 @@ public class ParkingServiceImpl implements ParkingService {
 	@Override
 	public void createParkingLot(int size) throws ParkingException {
 		// TODO Auto-generated method stub
+
 	}
 
 	@Override
-	public boolean park(Vehicle vehicle) throws ParkingException {
+	public void park(Vehicle vehicle) throws ParkingException {
 		// TODO Auto-generated method stub
-		return false;
+
 	}
 
 	@Override
@@ -57,12 +58,6 @@ public class ParkingServiceImpl implements ParkingService {
 	public Integer getAvailableSlotsCount() throws ParkingException {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	@Override
-	public void doCleanup() {
-		// TODO Auto-generated method stub
-
 	}
 
 }

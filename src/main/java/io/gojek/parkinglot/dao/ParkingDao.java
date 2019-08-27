@@ -1,23 +1,23 @@
-package io.gojek.parkinglot.service;
+package io.gojek.parkinglot.dao;
 
 import java.util.List;
+import java.util.Map;
 
 import io.gojek.parkinglot.exception.ParkingException;
+import io.gojek.parkinglot.model.Slot;
 import io.gojek.parkinglot.model.Vehicle;
 
 /**
  * @author Mandeep Singh
  *
  */
-public interface ParkingService {
-
-	public void createParkingLot(int size) throws ParkingException;
-
-	public void park(Vehicle vehicle) throws ParkingException;
+public interface ParkingDao {
+	
+	public boolean park(Vehicle vehicle) throws ParkingException;
 
 	public void unPark(int slotNumber) throws ParkingException;
 
-	public void getStatus() throws ParkingException;
+	public Map<Slot, Vehicle> getStatus() throws ParkingException;
 
 	public List<String> getRegistrationNumbersOfColour(String colour) throws ParkingException;
 
