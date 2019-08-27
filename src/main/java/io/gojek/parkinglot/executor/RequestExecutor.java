@@ -1,8 +1,10 @@
 package io.gojek.parkinglot.executor;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import io.gojek.parkinglot.constants.Commands;
+import io.gojek.parkinglot.constants.ExceptionMessages;
 import io.gojek.parkinglot.exception.ParkingException;
 import io.gojek.parkinglot.model.Car;
 import io.gojek.parkinglot.model.Vehicle;
@@ -21,7 +23,7 @@ public class RequestExecutor {
 		this.parkingService = parkingService;
 	}
 
-	public void getInput(String[] args) {
+	public void getInputAndExecute(String[] args) {
 		String input;
 		switch (args.length) {
 
@@ -38,16 +40,20 @@ public class RequestExecutor {
 					} else if (InputUtils.validateInput(input)) {
 						execute(input);
 					} else {
-//						throw new ParkingException(ExceptionMessages.INVALID_REQUEST.getMessage());
+						throw new ParkingException(ExceptionMessages.INVALID_REQUEST.getMessage());
 					}
-				} catch (IOException | ParkingException e) {
-					// TODO Auto-generated catch block
+				} catch (ParkingException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 			break;
 		}
 		case 1: { // File Input
+
 			try {
 				InputUtils.initFileReader(args[0]);
 
@@ -59,7 +65,9 @@ public class RequestExecutor {
 						execute(input);
 					}
 				}
-
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -67,9 +75,10 @@ public class RequestExecutor {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
-		}
 
+			break;
+		}
+		}
 	}
 
 	public void execute(String input) throws ParkingException {

@@ -11,6 +11,6 @@ public class App {
 	public static void main(String[] args) {
 		RequestExecutor executor = new RequestExecutor();
 		executor.setParkingService(new ParkingServiceImpl());
-		executor.getInput(args);
+		executor.getInputAndExecute(args);
 	}
 }
