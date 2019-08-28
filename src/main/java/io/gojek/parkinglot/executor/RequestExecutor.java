@@ -7,6 +7,7 @@ import io.gojek.parkinglot.constants.Commands;
 import io.gojek.parkinglot.constants.ExceptionMessages;
 import io.gojek.parkinglot.exception.ParkingException;
 import io.gojek.parkinglot.model.Car;
+import io.gojek.parkinglot.model.Command;
 import io.gojek.parkinglot.model.Vehicle;
 import io.gojek.parkinglot.service.ParkingService;
 import io.gojek.parkinglot.util.InputUtils;
@@ -17,22 +18,75 @@ import io.gojek.parkinglot.util.InputUtils;
  */
 public class RequestExecutor {
 
+	/**
+	 * Reference to Parking service
+	 */
 	private ParkingService parkingService;
 
+	/**
+	 * @param parkingService
+	 */
 	public void setParkingService(ParkingService parkingService) {
 		this.parkingService = parkingService;
 	}
 
+	public void execute(String input) throws ParkingException {
+		Command command = Command.parseInput(input);
+
+		switch (command.getCommandName()) {
+		case Commands.CREATE_PARKING_LOT: {
+			int size = Integer.parseInt(command.getParams().get(0));
+			parkingService.createParkingLot(size);
+			break;
+		}
+		case Commands.PARK: {
+			String regNumber = command.getParams().get(0);
+			String colour = command.getParams().get(1);
+			Vehicle vehicle = new Car(regNumber, colour);
+			parkingService.park(vehicle);
+			break;
+		}
+		case Commands.LEAVE: {
+			int slotNumber = Integer.parseInt(command.getParams().get(0));
+			parkingService.unPark(slotNumber);
+			break;
+		}
+		case Commands.STATUS: {
+			parkingService.getStatus();
+			break;
+		}
+		case Commands.REG_NUMBER_FOR_CARS_WITH_COLOR: {
+			String colour = command.getParams().get(0);
+			parkingService.getRegistrationNumbersOfColour(colour);
+			break;
+		}
+		case Commands.SLOTS_NUMBER_FOR_CARS_WITH_COLOR: {
+			String colour = command.getParams().get(0);
+			parkingService.getSlotNumbersOfColour(colour);
+			break;
+		}
+		case Commands.SLOTS_NUMBER_FOR_REG_NUMBER: {
+			String regNumber = command.getParams().get(0);
+			parkingService.getSlotNumberFromRegistrationNumber(regNumber);
+			break;
+		}
+		default: {
+			break;
+		}
+		}
+	}
+
 	public void getInputAndExecute(String[] args) {
 		String input;
+
 		switch (args.length) {
 
 		// Console Input
 		case 0: {
 			InputUtils.initConsoleReader();
 
-			while (true) {
-				try {
+			try {
+				while (true) {
 					input = InputUtils.reader.readLine().trim();
 
 					if ("exit".equalsIgnoreCase(input)) {
@@ -42,11 +96,18 @@ public class RequestExecutor {
 					} else {
 						throw new ParkingException(ExceptionMessages.INVALID_REQUEST.getMessage());
 					}
-				} catch (ParkingException e) {
-					e.printStackTrace();
+				}
+			} catch (ParkingException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					InputUtils.closeReader();
 				} catch (IOException e) {
-					e.printStackTrace();
-				} catch (Exception e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -74,6 +135,13 @@ public class RequestExecutor {
 			} catch (ParkingException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			} finally {
+				try {
+					InputUtils.closeReader();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 
 			break;
@@ -81,50 +149,4 @@ public class RequestExecutor {
 		}
 	}
 
-	public void execute(String input) throws ParkingException {
-//		System.out.println("executing " + input);
-		String commandArgs[] = input.split(" ");
-
-		switch (commandArgs[0]) {
-		case Commands.CREATE_PARKING_LOT: {
-			int size = Integer.parseInt(commandArgs[1]);
-			parkingService.createParkingLot(size);
-			break;
-		}
-		case Commands.PARK: {
-			String regNumber = commandArgs[1];
-			String colour = commandArgs[2];
-			Vehicle vehicle = new Car(regNumber, colour);
-			parkingService.park(vehicle);
-			break;
-		}
-		case Commands.LEAVE: {
-			int slotNumber = Integer.parseInt(commandArgs[1]);
-			parkingService.unPark(slotNumber);
-			break;
-		}
-		case Commands.STATUS: {
-			parkingService.getStatus();
-			break;
-		}
-		case Commands.REG_NUMBER_FOR_CARS_WITH_COLOR: {
-			String colour = commandArgs[1];
-			parkingService.getRegistrationNumbersOfColour(colour);
-			break;
-		}
-		case Commands.SLOTS_NUMBER_FOR_CARS_WITH_COLOR: {
-			String colour = commandArgs[1];
-			parkingService.getSlotNumbersOfColour(colour);
-			break;
-		}
-		case Commands.SLOTS_NUMBER_FOR_REG_NUMBER: {
-			String regNumber = commandArgs[1];
-			parkingService.getSlotNumberFromRegistrationNumber(regNumber);
-			break;
-		}
-		default: {
-			break;
-		}
-		}
-	}
 }

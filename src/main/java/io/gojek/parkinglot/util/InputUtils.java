@@ -6,12 +6,16 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.invoke.ConstantCallSite;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
+import io.gojek.parkinglot.constants.Commands;
 import io.gojek.parkinglot.constants.CommandsParameterMap;
 import io.gojek.parkinglot.constants.ExceptionMessages;
 import io.gojek.parkinglot.exception.ParkingException;
+import io.gojek.parkinglot.model.Command;
+import io.gojek.parkinglot.model.Vehicle;
 
 /**
  * @author Mandeep Singh
@@ -29,34 +33,28 @@ public class InputUtils {
 		reader = new BufferedReader(new InputStreamReader(System.in));
 	}
 
-	public void closeReader() throws IOException {
+	public static void closeReader() throws IOException {
 		if (reader != null) {
 			reader.close();
 		}
 	}
 
 	public static boolean validateInput(String input) throws ParkingException {
-//		System.out.println("validating " + input);
-		boolean valid = true;
-
-//		String commandArgs[] = input.split(" ");
-//
-//		Map<String, Integer> cmdMap = CommandsParameterMap.getCommandsParameterMap();
-//		
-//		if(cmdMap.containsKey(commandArgs[0])) {
-//			String key = commandArgs[0];
-//			int reqParamsCount = cmdMap.get(key);
-//			
-//			if(reqParamsCount == 1) {
-//				
-//			}
-//			
-//		}else {
-//			throw new ParkingException(ExceptionMessages.INVALID_COMMAND.getMessage());
-//		}
-
+		boolean valid = false;
+		if (Command.parseInput(input) != null) {
+			valid = true;
+		}
 		return valid;
 	}
-	
-//	public
+
+	public static int isNumber(String input) {
+		int number = -1;
+		try {
+			number = Integer.parseInt(input);
+		} catch (NumberFormatException e) {
+			throw e;
+		}
+		return number;
+	}
+
 }
