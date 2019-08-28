@@ -137,4 +137,36 @@ public class Command {
 		}
 		return command;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((commandName == null) ? 0 : commandName.hashCode());
+		result = prime * result + ((params == null) ? 0 : params.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Command other = (Command) obj;
+		if (commandName == null) {
+			if (other.commandName != null)
+				return false;
+		} else if (!commandName.equals(other.commandName))
+			return false;
+		if (params == null) {
+			if (other.params != null)
+				return false;
+		} else if (!params.equals(other.params))
+			return false;
+		return true;
+	}
+
 }
