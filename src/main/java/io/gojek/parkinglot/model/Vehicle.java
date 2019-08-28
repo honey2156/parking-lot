@@ -1,7 +1,5 @@
 package io.gojek.parkinglot.model;
 
-import java.util.regex.Pattern;
-
 import io.gojek.parkinglot.constants.Colour;
 
 /**
@@ -36,10 +34,8 @@ public abstract class Vehicle {
 	}
 
 	public static boolean isRegistrationNumber(String input) {
-		System.out.println(input);
-		String regexPattern = "^[A-Z]{2}\\s[0-9]{2}\\s[A-Z]{2}\\s[0-9]{4}$";
-		System.out.println("pattern "+ Pattern.matches(regexPattern, input));
-		return true;
+		String regexPattern = "^[A-Z]{2}[-][0-9]{2}[-][A-Z]{2}[-][0-9]{4}$";
+		return input.matches(regexPattern);
 	}
 
 	public static boolean isColour(String input) {
