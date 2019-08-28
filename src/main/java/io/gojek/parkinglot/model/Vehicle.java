@@ -34,7 +34,7 @@ public abstract class Vehicle {
 	}
 
 	public static boolean isRegistrationNumber(String input) {
-		String regexPattern = "^[A-Z]{2}[-][0-9]{2}[-][A-Z]{2}[-][0-9]{4}$";
+		String regexPattern = "^[A-Z]{2}[-][0-9]{2}[-][A-Z]{1,2}[-][0-9]{1,4}$";
 		return input.matches(regexPattern);
 	}
 

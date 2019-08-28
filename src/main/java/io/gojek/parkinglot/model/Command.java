@@ -77,14 +77,14 @@ public class Command {
 					break;
 				}
 				case Commands.LEAVE: {
-					if (!Vehicle.isRegistrationNumber(commandArgs[1]) || !Vehicle.isColour(commandArgs[2])) {
-						throw new ParkingException(ExceptionMessages.INVALID_ARGUMENTS.getMessage());
+					int slotNumber = InputUtils.isNumber(commandArgs[1]);
+					if (slotNumber < 0) {
+						throw new NumberFormatException(ExceptionMessages.INVALID_VALUE.getMessage());
 					}
 					command = new Command();
 					command.setCommandName(commandName);
 					List<String> params = new ArrayList<String>();
 					params.add(commandArgs[1]);
-					params.add(commandArgs[2]);
 					command.setParams(params);
 					break;
 				}
@@ -95,7 +95,7 @@ public class Command {
 					break;
 				}
 				case Commands.REG_NUMBER_FOR_CARS_WITH_COLOR: {
-					if (!Vehicle.isColour(commandArgs[2])) {
+					if (!Vehicle.isColour(commandArgs[1])) {
 						throw new ParkingException(ExceptionMessages.INVALID_ARGUMENTS.getMessage());
 					}
 					command = new Command();
@@ -106,7 +106,7 @@ public class Command {
 					break;
 				}
 				case Commands.SLOTS_NUMBER_FOR_CARS_WITH_COLOR: {
-					if (!Vehicle.isColour(commandArgs[2])) {
+					if (!Vehicle.isColour(commandArgs[1])) {
 						throw new ParkingException(ExceptionMessages.INVALID_ARGUMENTS.getMessage());
 					}
 					command = new Command();
